@@ -25,7 +25,7 @@ def dataGen():
 		data = []
 		target = [resultSet[i]+noiseSet[i]]
 
-		#base function, here is x^j
+		#basis function, here is x^j
 		for j in range(1,10):
 			data.append(randSet[i]**j)
 		dataSet.append(data)
