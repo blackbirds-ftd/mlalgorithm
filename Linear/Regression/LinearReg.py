@@ -43,12 +43,12 @@ def linearreg(dataSet, targetSet, regParam = 0, regularizer = 2):
 	for	regularization
 
 	input: dataSet -- Training dataSet input, eg. [[x11,x12...x1n][x21,x22...x2n]...]
-				 targetSet -- Training dataSet Output, eg. [[y10,y11...y1m][y20,y21...y2m]...],
-											targetSet and dataSet should have same length
-				 regParam, regularizer -- regularization parameter
+	       targetSet -- Training dataSet Output, eg. [[y10,y11...y1m][y20,y21...y2m]...],targetSet
+	                    and dataSet should have same length
+	       regParam, regularizer -- regularization parameter
 
 	output: param set w
-					#voice precisor value b
+		#voice precisor value b
 	**************************************************************************************
 	"""
 	X = copy.deepcopy(dataSet)
