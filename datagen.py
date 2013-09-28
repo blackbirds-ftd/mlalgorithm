@@ -14,8 +14,8 @@ def dataGen():
         for i in range(20): #No, of points in a Set
                 randnum = random.uniform(0, 1)
                 randSet.append(randnum)
-                #resultSet.append(sin(2*math.pi*randnum)) #Gen function
-                resultSet.append(0.5*randnum-0.3)
+                resultSet.append(sin(2*math.pi*randnum)) #Gen function
+                #resultSet.append(0.5*randnum-0.3)
                 noiseSet.append(random.normal(0, 0.2))
         dataSet = []
         targetSet = []

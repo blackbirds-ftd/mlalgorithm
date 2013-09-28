@@ -1,5 +1,5 @@
 import math
-import mathplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from numpy import *
 
 def drawset(dataSet, targetSet, w = [], filename = ''):
@@ -28,8 +28,8 @@ def drawset(dataSet, targetSet, w = [], filename = ''):
                         regressionfunc.append(0)
                 else:
                         regressionfunc.append(reg)
-                #basisfunc.append(math.sin(2*math.pi*i))
-                basisfunc.append(0.5*i-0.3)
+                basisfunc.append(math.sin(2*math.pi*i))
+                #basisfunc.append(0.5*i-0.3)
 
         plt.figure()
         ax = plt.subplot(111)

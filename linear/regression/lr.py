@@ -1,4 +1,4 @@
-import random
+import pltset
 import math
 from numpy import *
 import scipy
@@ -64,8 +64,8 @@ def bayeslinear(dataSet, targetSet):
 	except:
 		print 'dataSet and targetSet should have the same length'
 
-	priorPrecision = 2
-	likehoodSD = 0.2
+	priorPrecision = 11.1
+	likehoodSD = 0.002
 	likehoodPrecision = 1/(likehoodSD)**2
 
 	priorMean = zeros((len(X[0]), 1))
@@ -87,7 +87,7 @@ def bayeslinear(dataSet, targetSet):
 		priorMean = postMean
 		priorDev = postDev
 	
-	drawset(dataSet, targetSet, transpose(postMean)[0].tolist())
+	pltset.drawset(dataSet, targetSet, transpose(postMean)[0].tolist())
 	return transpose(postMean)[0].tolist(), postDev.tolist() 
 
 
