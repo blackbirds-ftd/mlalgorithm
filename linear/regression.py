@@ -22,14 +22,14 @@ def leastsqu(dataSet, targetSet, regParam = 0, regularizer = 2):
 					#voice precisor value b
 	**************************************************************************************
 	"""
-	X = copy.deepcopy(dataSet)
-	for data in X:
-		data.insert(0,1)
-	X = array(X)
+	#X = copy.deepcopy(dataSet)
+	#for data in X:
+	#	data.insert(0,1)
+	X = array(dataSet)
 	Y = array(targetSet)
 	
 	try:
-		len(X) == len(Y)
+		len(dataSet) == len(targetSet)
 	except:
 		print 'dataSet and targetSet should have the same length'
 	
@@ -38,14 +38,14 @@ def leastsqu(dataSet, targetSet, regParam = 0, regularizer = 2):
 	w = dot(w, transpose(X))
 	w = dot(w, Y)
 	
-	#T = Y.sum(axis = 0)/len(Y)
-	#O = X.sum(axis = 0)/len(X)
-	#w[0] = 0
-	#w[0] = T - dot(O, transpose(w)[0])
+	T = Y.sum(axis = 0)/len(Y)
+	Phi = X.sum(axis = 0)/len(X)
+	w0 = T - dot(Phi, transpose(w)[0])
 
-	drawset(dataSet, targetSet, transpose(postMean)[0].tolist())
+	w = transpose(w)[0].tolist()
+	w.insert(0, w0.tolist()[0])
 
-	return transpose(w)[0].tolist()
+	return w
 
 
 

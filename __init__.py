@@ -1,2 +1,5 @@
-import linear.regression.lr as linearreg
+import linear.regression as lr
+from datagen import *
 from pltset import *
+
+__all__ = ["dataGen", "drawset", "linear"]
