@@ -1,1 +1,1 @@
-__all__ = ["leastsqu", "bayeslinear"]
+__all__ = ['regression']

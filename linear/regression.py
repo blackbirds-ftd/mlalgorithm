@@ -44,7 +44,8 @@ def leastsqu(dataSet, targetSet, regParam = 0, regularizer = 2):
 
 	w = transpose(w)[0].tolist()
 	w.insert(0, w0.tolist()[0])
-
+		
+	pltset.drawset(dataSet, targetSet, w)
 	return w
 
 

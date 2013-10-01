@@ -1,5 +1,3 @@
+from datagen import dataGen
+from pltset import drawset
 import linear.regression as lr
-from datagen import *
-from pltset import *
-
-__all__ = ["dataGen", "drawset", "linear"]
