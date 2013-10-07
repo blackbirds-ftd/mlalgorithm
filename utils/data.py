@@ -4,12 +4,12 @@ import functools
 from  math import sin, pi
 
 
-def build_polynomial_function(coefficient):
-        """return a polynomial function with given coefficient"""
-        def f(x):
-                coe = coefficient
-                return sum([coe[i]*x**i for i in range(len(coe))])
-        return f
+# def build_polynomial_function(coefficient):
+#         """return a polynomial function with given coefficient"""
+#         def f(x):
+#                 coe = coefficient
+#                 return sum([coe[i]*x**i for i in range(len(coe))])
+#         return f
 
 def sin2pix(x):
         return sin(2*pi*x)

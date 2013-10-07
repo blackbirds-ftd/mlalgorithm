@@ -1,6 +1,8 @@
 from numpy import *
+from utils.measurement import root_mean_square
+from utils.tools import convert2matrix
 
-def least_square(features, values, lmd=0, regularizer=2):
+def least_square(features, values, lmd=None, regularizer=2):
         """An one-value least square method impletement
 
         Use sum of square error function which aroses in the maximum likehood
@@ -16,20 +18,33 @@ def least_square(features, values, lmd=0, regularizer=2):
 
         output:
         param set w
-        #voice precisor value b
         """
-        length = min(len(features), len(values))
-        X = array(features[:length])
-        Y = array(values[:length])
+        if lmd == None:
+                lmd = 0
+        A, b, size = convert2matrix(features, values)
 
-        R = lmd*eye(len(X[0, :]))
-        # solve the equation X'*X*w=X'Y
-        w = linalg.solve(R+dot(X.T, X), dot(X.T, Y))
-        w0 = Y.sum() / len(Y) - dot(X.sum(axis=0) / len(X[:, 0]), w)
+        R = lmd * eye(len(A[0, :]))
+        # solve the equation A'*A*w=A'b
+        w = linalg.solve(R+dot(A.T, A), dot(A.T, b))
+        w0 = (b - dot(A, w)).sum() / size
 
         w = w.tolist()
         w[0:0] = [w0]
         return w
+
+
+def gradient_descent(features, values, w, sigma=None, steps=None):
+        if sigma == None:
+                sigma = 1e-2
+        if steps == None:
+                steps = 10000
+        A, b, size, w = convert2matrix(features, values, w)
+
+        for i in range(steps):
+                # (A*w - b) * A is the derivative term
+                w = w - sigma * dot((dot(A, w) - b), A)
+        return w
+
 
 def bayeslinear(dataSet, targetSet):
         """
