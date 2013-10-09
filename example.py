@@ -22,9 +22,9 @@ def fit_2dcurve(xset, yset, method, basis='poly', **kwargs):
     elif method.__name__ == 'bayesian':
         features = [tuple(x**i for i in range(1, M+1)) for x in xset]
         w, sd, alpha, beta = method(features, yset,
-									kwargs.get('alpha'), 
-									kwargs.get('beta'), 
-									kwargs.get('step'))
+		   kwargs.get('alpha'), 
+		   kwargs.get('beta'), 
+		   kwargs.get('step'))
 		#should return post alpha and beta
         print('post alpha={}, post beta={}'.format(alpha,beta))
 
@@ -50,9 +50,9 @@ def draw_picture(xset, yset, w, method, **kwargs):
                           ])
     elif method == 'bayesian':
         file_name = '_'.join(['result/bayes',
-							  'size{}'.format(len(xset)),
-							  'M{}'.format(kwargs.get('M')),
-						  ])
+			      'size{}'.format(len(xset)),
+			      'M{}'.format(kwargs.get('M')),
+			  ])
 
     draw_curve(sin2pix, xset, yset, w, file_name)
 
@@ -92,20 +92,20 @@ def use_gradient_descent(training_data, test_data, M=9, sigma=None, steps=None):
 
 def use_bayesian(training_data, test_data, M=9, alpha=None, beta=None, steps=None):
     print('M={}, init alpha={}, init beta={}, steps={}'.format(M,
-											  alpha if alpha else 0.1,
-											  beta if beta else 10,
-											  steps if steps else 100))
+			     				       alpha if alpha else 0.1,
+							       beta if beta else 10,
+							       steps if steps else 100))
     w = fit_2dcurve(training_data[0], training_data[1],
 					bayesian, M=M, alpha=alpha, beta=beta, steps=steps)
     print('RMS for training set: {}\nfor test set: {}'.format(
         root_mean_square(
-			[tuple(x**i for i in range(0, M+1)) for x in training_data[0]],
-			training_data[1],
-			w),
+	    [tuple(x**i for i in range(0, M+1)) for x in training_data[0]],
+	    training_data[1],
+	    w),
         root_mean_square(
-			[tuple(x**i for i in range(0, M+1)) for x in test_data[0]],
-			test_data[1],
-			w)
+	    [tuple(x**i for i in range(0, M+1)) for x in test_data[0]],
+	    test_data[1],
+	    w)
         ))
 
 if __name__ == '__main__':
