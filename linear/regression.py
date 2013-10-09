@@ -1,6 +1,6 @@
 from numpy import *
 from utils.measurement import root_mean_square
-from utils.tools import convert2matrix
+from utils.tools import convert2matrix, mdotl
 
 def least_square(features, values, lmd=None, regularizer=2):
         """An one-value least square method impletement
@@ -19,8 +19,8 @@ def least_square(features, values, lmd=None, regularizer=2):
         output:
         param set w
         """
-        if lmd == None:
-                lmd = 0
+	if lmd == None:
+	        lmd = 0
         A, b, size = convert2matrix(features, values)
 
         R = lmd * eye(len(A[0, :]))
@@ -46,45 +46,36 @@ def gradient_descent(features, values, w, sigma=None, steps=None):
         return w
 
 
-def bayeslinear(dataSet, targetSet):
+def bayesian(features, values, alpha=None, beta=None, steps=None):
         """
         linear Regression use bayesian approach
         """
-        X = copy.deepcopy(dataSet)
-        for data in X:
-                data.insert(0,1)
-        X = array(X)
-        Y = array(targetSet)
-        
-        try:
-                len(X) == len(Y)
-        except:
-                print( 'dataSet and targetSet should have the same length')
+	#alpha and beta can be init by user
+	if alpha == None:
+		alpha = 0.1
+	if beta == None:	
+		beta = 10
+	#iterate time control to fix alpha beta
+	if steps == None:
+		steps = 1000
+	
+	A, b, size = convert2matrix(features, values)
+	R = alpha * eye(len(A[0, :]))
+	Mean = zeros(len(A[0, :]))
+	SD = eye(len(A[0, :])) / alpha
 
-        priorPrecision = 11.1
-        likehoodSD = 0.002
-        likehoodPrecision = 1/(likehoodSD)**2
-
-        priorMean = zeros((len(X[0]), 1))
-        priorDev = eye(len(X[0]))/priorPrecision
-        
-        postMean = priorMean
-        postDev = priorDev
-
-        for i in xrange(len(dataSet)):
-                data = X[i].reshape(1, len(X[i]))
-                target = Y[i].reshape(1, len(Y[i]))
-
-                postDev = linalg.inv(linalg.inv(priorDev)+likehoodPrecision*dot(transpose(data), data))
-                postMean = dot(postDev, dot(linalg.inv(priorDev), priorMean)+likehoodPrecision*dot(transpose(data), target))
-
-                #if i%2 == 0:
-                #       filename = r'bayes' + str(i)
-                #       drawset(dataSet, targetSet, postMean, filename)
-                priorMean = postMean
-                priorDev = postDev
-        
-#       pltset.drawset(dataSet, targetSet, transpose(postMean)[0].tolist())
-        return transpose(postMean)[0].tolist(), postDev.tolist() 
+	#calculate eig values for lmd in order to fix alpha, beta
+	eig, v = linalg.eig(dot(A.T, A))
+	for step in range(steps):
+		SD = linalg.solve(R + beta * dot(A.T, A), eye(len(A[0, :])))
+		Mean = beta * mdotl(SD, A.T, b)
+		gamma = (beta * eig / (alpha + beta * eig)).sum()
+		alpha = gamma / dot(Mean, Mean.T)
+		beta = (size - gamma) / ((b - dot(A, Mean)) ** 2).sum()	
+        #w0 should be fixed
+	w0 = (b - dot(A, Mean)).sum() / size
+        Mean = Mean.tolist()
+        Mean[0:0] = [w0]
+        return Mean, SD.tolist(), alpha, beta
 
 
