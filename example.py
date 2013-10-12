@@ -20,6 +20,7 @@ def fit_2dcurve(xset, yset, method, basis='poly', **kwargs):
         w = method(features, yset, w,
                    kwargs.get('sigma'), kwargs.get('steps'))
     elif method.__name__ == 'bayesian':
+<<<<<<< HEAD
         features = [tuple(x**i for i in range(0, M+1)) for x in xset]
 	w = [0 for i in range(M + 1)]
         w, SD, alpha, beta = method(features, yset, w,
@@ -27,6 +28,14 @@ def fit_2dcurve(xset, yset, method, basis='poly', **kwargs):
                                     kwargs.get('beta'), 
                                     kwargs.get('steps'))
 	#for convenient use
+=======
+        features = [tuple(x**i for i in range(1, M+1)) for x in xset]
+        w, sd, alpha, beta = method(features, yset,
+		   kwargs.get('alpha'), 
+		   kwargs.get('beta'), 
+		   kwargs.get('step'))
+		#should return post alpha and beta
+>>>>>>> 1492e9462aa6257c49d93ec850e8967a0674bce9
         print('post alpha={}, post beta={}'.format(alpha,beta))
 
     if method.__name__ == 'bayesian':
@@ -54,6 +63,7 @@ def draw_picture(xset, yset, w, method, **kwargs):
                           ])
     elif method == 'bayesian':
         file_name = '_'.join(['result/bayes',
+<<<<<<< HEAD
                               'size{}'.format(len(xset)),
                               'M{}'.format(kwargs.get('M')),
                           ])
@@ -64,6 +74,13 @@ def draw_picture(xset, yset, w, method, **kwargs):
         draw_gauss(sin2pix, xset, yset, w, SD, beta, file_name)
     else:
         draw_curve(sin2pix, xset, yset, w, file_name)
+=======
+			      'size{}'.format(len(xset)),
+			      'M{}'.format(kwargs.get('M')),
+			  ])
+
+    draw_curve(sin2pix, xset, yset, w, file_name)
+>>>>>>> 1492e9462aa6257c49d93ec850e8967a0674bce9
 
 
 def use_least_square(training_data, test_data, M=9, lmd=0.0):
@@ -101,20 +118,26 @@ def use_gradient_descent(training_data, test_data, M=9, sigma=None, steps=None):
 
 def use_bayesian(training_data, test_data, M=9, alpha=None, beta=None, steps=None):
     print('M={}, init alpha={}, init beta={}, steps={}'.format(M,
+<<<<<<< HEAD
                                                                alpha if alpha else 0.1,
                                                                beta if beta else 10,
                                                                steps if steps else 100))
+=======
+			     				       alpha if alpha else 0.1,
+							       beta if beta else 10,
+							       steps if steps else 100))
+>>>>>>> 1492e9462aa6257c49d93ec850e8967a0674bce9
     w = fit_2dcurve(training_data[0], training_data[1],
 					bayesian, M=M, alpha=alpha, beta=beta, steps=steps)
     print('RMS for training set: {}\nfor test set: {}'.format(
         root_mean_square(
-			[tuple(x**i for i in range(0, M+1)) for x in training_data[0]],
-			training_data[1],
-			w),
+	    [tuple(x**i for i in range(0, M+1)) for x in training_data[0]],
+	    training_data[1],
+	    w),
         root_mean_square(
-			[tuple(x**i for i in range(0, M+1)) for x in test_data[0]],
-			test_data[1],
-			w)
+	    [tuple(x**i for i in range(0, M+1)) for x in test_data[0]],
+	    test_data[1],
+	    w)
         ))
 
 if __name__ == '__main__':
