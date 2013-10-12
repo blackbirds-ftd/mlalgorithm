@@ -46,36 +46,41 @@ def gradient_descent(features, values, w, sigma=None, steps=None):
         return w
 
 
-def bayesian(features, values, alpha=None, beta=None, steps=None):
+def bayesian(features, values, w, alpha=None, beta=None, steps=None):
         """
         linear Regression use bayesian approach
         """
 	#alpha and beta can be init by user
 	if alpha == None:
-		alpha = 0.1
+		alpha = .1
 	if beta == None:	
 		beta = 10
 	#iterate time control to fix alpha beta
 	if steps == None:
-		steps = 1000
-	
-	A, b, size = convert2matrix(features, values)
+		steps = 10
+	postalpha = alpha
+	postbeta = beta
+
+	A, b, size, Mean = convert2matrix(features, values, w)
 	R = alpha * eye(len(A[0, :]))
-	Mean = zeros(len(A[0, :]))
 	SD = eye(len(A[0, :])) / alpha
 
 	#calculate eig values for lmd in order to fix alpha, beta
-	eig, v = linalg.eig(dot(A.T, A))
+	eig, v = linalg.eig(dot(A.T, A))	
 	for step in range(steps):
-		SD = linalg.solve(R + beta * dot(A.T, A), eye(len(A[0, :])))
+		alpha = postalpha
+		beta = postbeta
+
+		SD = linalg.inv(R + beta * dot(A.T, A))
 		Mean = beta * mdotl(SD, A.T, b)
-		gamma = (beta * eig / (alpha + beta * eig)).sum()
-		alpha = gamma / dot(Mean, Mean.T)
-		beta = (size - gamma) / ((b - dot(A, Mean)) ** 2).sum()	
-        #w0 should be fixed
-	w0 = (b - dot(A, Mean)).sum() / size
-        Mean = Mean.tolist()
-        Mean[0:0] = [w0]
-        return Mean, SD.tolist(), alpha, beta
+
+		gamma = ((beta * eig) / (alpha + beta * eig)).sum()
+		postalpha = gamma / dot(Mean, Mean.T)
+		postbeta = (size - gamma) / ((b - dot(A, Mean)) ** 2).sum()
+
+		if alpha == postalpha and beta == postbeta:
+			break
+
+        return Mean, SD, alpha, beta
 
 

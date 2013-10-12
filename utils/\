@@ -21,39 +21,42 @@ def draw_curve(f, xset, yset, w=None, filename=None):
         plt.subplot(111)
         plt.xlim(0, 1)
         plt.ylim(-1.5, 1.5)
-        plt.scatter(xset, yset, color='b')
-        plt.plot(step, basis, color='g')
-        plt.plot(step, regression, color='r')
+        plt.scatter(xset, yset, c = 'b')
+        plt.plot(step, basis, c = 'g')
+        plt.plot(step, regression, c = 'r')
 
         if filename:
                 plt.savefig(filename)
         plt.show()
 
 def draw_gauss(f, xset, yset, w, SD, beta, filename=None):
-	def cal_std(x):
+	def std(x):
 		psi = array([w[i]*x**i for i in range(len(w))])
 		std = (1/beta + mdotl(psi.T, SD, psi))**0.5
 		return std
-
         step = linspace(0, 1, 100)
         regression = [
                 x
                 for x in (sum([w[i]*x**i for i in range(len(w))]) for x in step)
         ]
-	std = list(map(cal_std, step))
+	std = list(map(std, step))
+	#x = linspace(0, 1, 10)
+	#y = linspace(-1.5, 1.5, 15)
+	#X, Y = meshgrid(x, y)
         basis = list(map(f, step))
 
-	Y1 = array([norm(regression[i], std[i]).interval(0.95)[0] for i in range(len(step))])
-	Y2 = array([norm(regression[i], std[i]).interval(0.95)[1] for i in range(len(step))])
-
+	Y = norm(regression, std).interval(0.95)
+	print(Y)
+	#Z = array([list(map(norm_prob, X[i], Y[i])) for i in range(len(X))])
 	plt.figure()
         plt.subplot(111)
         plt.xlim(0, 1)
         plt.ylim(-1.5, 1.5)
-	plt.fill_between(step, Y1, Y2, color='pink')
-	plt.scatter(xset, yset, color='b')
-        plt.plot(step, basis, color='g')
-	plt.plot(step, regression, color='r')
+	plt.scatter(xset, yset, c = 'b')
+        plt.plot(step, basis, c = 'g')
+	plt.plot(step, regression, c = 'r')
+	#plt.contourf(X, Y, Z, 128)#, alpha=.75, cmap=cm.hot)
+	plt.fill_between(step, Y, -Y)
 	
         if filename:
                 plt.savefig(filename)

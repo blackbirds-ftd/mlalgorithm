@@ -2,6 +2,7 @@
 TAGS
 result
 test*
+*.swp
 .emacs.desktop
 # C extensions
 *.so
