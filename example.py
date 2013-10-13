@@ -30,7 +30,7 @@ def fit_2dcurve(xset, yset, method, basis='poly', **kwargs):
         print('post alpha={}, post beta={}'.format(alpha,beta))
 
     if method.__name__ == 'bayesian':
-	draw_picture(xset, yset, w, method.__name__, regression, SD=SD, beta=beta)
+	draw_picture(xset, yset, w, method.__name__, 'regression', SD=SD, beta=beta)
     else:
 	draw_picture(xset, yset, w, method.__name__, 'regression')    
     return w
@@ -143,7 +143,7 @@ def use_perceptron(training_data):
 
 
 if __name__ == '__main__':
-    """print('#####some curve fitting examples.#####')
+    print('#####some curve fitting examples.#####')
     training10 = generate_2dcurve_dots(10)
     training50 = generate_2dcurve_dots(50)
     test50 = generate_2dcurve_dots(50)
@@ -166,13 +166,14 @@ if __name__ == '__main__':
     use_bayesian(training50, test50, M=9, alpha=.1, beta=25, steps=1)
     use_bayesian(training50, test50, M=9, alpha=.1, beta=25, steps=2)
     use_bayesian(training50, test50, M=9, alpha=.1, beta=25, steps=3)
-    use_bayesian(training50, test50, M=9, alpha=.1, beta=25, steps=4)"""
+    use_bayesian(training50, test50, M=9, alpha=.1, beta=25, steps=4)
     print('#####some classification examples.#####')
     training10 = generate_2d2label_dots(10)
     training50 = generate_2d2label_dots(50)
     print('#####use perceptron.#####')
     print('use 10 dots for training')
     use_perceptron(training10)
+    print('use 50 dots for training')
     use_perceptron(training50)
     print('see pic in result dir')
 
