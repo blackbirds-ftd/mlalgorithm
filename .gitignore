@@ -1,6 +1,7 @@
 *.py[cod]
 TAGS
 result
+debug
 test*
 *.swp
 .emacs.desktop

@@ -1,4 +1,6 @@
-requirement
+ml
 ===========
-numpy
-matplotlib
+
+#requirement
+* numpy
+* matplotlib

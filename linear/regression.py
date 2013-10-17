@@ -1,9 +1,13 @@
+import math
+
 from numpy import *
+
 from utils.measurement import root_mean_square
-from utils.tools import convert2matrix, mdotl
+from utils.tools import convert2matrix, mdotl, feature_scaling
+from utils.plot import draw_gd_debug
 
 def least_square(features, values, lmd=None, regularizer=2):
-        """An one-value least square method impletement
+        """An least square method impletement
 
         Use sum of square error function which aroses in the maximum likehood
         to get liner regression param set w for supervised learning.
@@ -19,8 +23,8 @@ def least_square(features, values, lmd=None, regularizer=2):
         output:
         param set w
         """
-	if lmd == None:
-	        lmd = 0
+        if lmd == None:
+                lmd = 0
         A, b, size = convert2matrix(features, values)
 
         R = lmd * eye(len(A[0, :]))
@@ -33,16 +37,29 @@ def least_square(features, values, lmd=None, regularizer=2):
         return w
 
 
-def gradient_descent(features, values, w, sigma=None, steps=None):
+def gradient_descent(features, values, w,
+                     sigma=None, steps=None, scaling=True, debug=False):
         if sigma == None:
                 sigma = 1e-2
         if steps == None:
                 steps = 10000
+        debug_y = []
+        debug_x = list(range(0, steps, math.floor((steps/100))))
+
         A, b, size, w = convert2matrix(features, values, w)
 
+        if scaling:
+                A = feature_scaling(A)
         for i in range(steps):
                 # (A*w - b) * A is the derivative term
+                if debug and i in debug_x:
+                        debug_y.append(root_mean_square(A, values, w))
                 w = w - sigma * dot((dot(A, w) - b), A)
+        if debug:
+                draw_gd_debug(
+                        debug_x, debug_y,
+                        'sigma:{}_steps:{}_scaling:{}'.format(sigma, steps, scaling)
+                )
         return w
 
 
@@ -50,37 +67,35 @@ def bayesian(features, values, w, alpha=None, beta=None, steps=None):
         """
         linear Regression use bayesian approach
         """
-	#alpha and beta can be init by user
-	if alpha == None:
-		alpha = .1
-	if beta == None:	
-		beta = 10
-	#iterate time control to fix alpha beta
-	if steps == None:
-		steps = 10
-	postalpha = alpha
-	postbeta = beta
+        #alpha and beta can be init by user
+        if alpha == None:
+                alpha = .1
+        if beta == None:        
+                beta = 10
+        #iterate time control to fix alpha beta
+        if steps == None:
+                steps = 10
+        postalpha = alpha
+        postbeta = beta
 
-	A, b, size, Mean = convert2matrix(features, values, w)
-	R = alpha * eye(len(A[0, :]))
-	SD = eye(len(A[0, :])) / alpha
+        A, b, size, Mean = convert2matrix(features, values, w)
+        R = alpha * eye(len(A[0, :]))
+        SD = eye(len(A[0, :])) / alpha
 
-	#calculate eig values for lmd in order to fix alpha, beta
-	eig, v = linalg.eig(dot(A.T, A))	
-	for step in range(steps):
-		alpha = postalpha
-		beta = postbeta
+        #calculate eig values for lmd in order to fix alpha, beta
+        eig, v = linalg.eig(dot(A.T, A))        
+        for step in range(steps):
+                alpha = postalpha
+                beta = postbeta
 
-		SD = linalg.inv(R + beta * dot(A.T, A))
-		Mean = beta * mdotl(SD, A.T, b)
+                SD = linalg.inv(R + beta * dot(A.T, A))
+                Mean = beta * mdotl(SD, A.T, b)
 
-		gamma = ((beta * eig) / (alpha + beta * eig)).sum()
-		postalpha = gamma / dot(Mean, Mean.T)
-		postbeta = (size - gamma) / ((b - dot(A, Mean)) ** 2).sum()
+                gamma = ((beta * eig) / (alpha + beta * eig)).sum()
+                postalpha = gamma / dot(Mean, Mean.T)
+                postbeta = (size - gamma) / ((b - dot(A, Mean)) ** 2).sum()
 
-		if alpha == postalpha and beta == postbeta:
-			break
+                if alpha == postalpha and beta == postbeta:
+                        break
 
         return Mean, SD, alpha, beta
-
-
