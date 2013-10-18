@@ -74,10 +74,10 @@ def bayesian(features, values, w, alpha=None, beta=None, steps=None):
                 beta = 10
         #iterate time control to fix alpha beta
         if steps == None:
-                steps = 10
-        postalpha = alpha
-        postbeta = beta
+                steps = 1
 
+	postalpha = alpha
+	postbeta = beta
         A, b, size, Mean = convert2matrix(features, values, w)
         R = alpha * eye(len(A[0, :]))
         SD = eye(len(A[0, :])) / alpha
@@ -87,15 +87,10 @@ def bayesian(features, values, w, alpha=None, beta=None, steps=None):
         for step in range(steps):
                 alpha = postalpha
                 beta = postbeta
-
                 SD = linalg.inv(R + beta * dot(A.T, A))
                 Mean = beta * mdotl(SD, A.T, b)
-
                 gamma = ((beta * eig) / (alpha + beta * eig)).sum()
                 postalpha = gamma / dot(Mean, Mean.T)
                 postbeta = (size - gamma) / ((b - dot(A, Mean)) ** 2).sum()
-
-                if alpha == postalpha and beta == postbeta:
-                        break
 
         return Mean, SD, alpha, beta
