@@ -65,13 +65,15 @@ def fit_2dcurve(xset, yset, method, **kwargs):
     """
     M = kwargs.pop('M', None)
     w = kwargs.pop('w', None)
-    features = convert2polynomial((0, M), xset)
 
     if method.__name__ == 'least_square':
+        features = convert2polynomial((1, M), xset)
         w = method(features, yset, **kwargs)
     elif method.__name__ == 'gradient_descent':
+        features = convert2polynomial((0, M), xset)
         w = method(features, yset, w, **kwargs)
     elif method.__name__ == 'bayesian':
+        features = convert2polynomial((0, M), xset)
         w, SD, alpha, beta = method(features, yset, w, **kwargs)
         print('post alpha={}, post beta={}'.format(alpha,beta))
 
@@ -84,16 +86,6 @@ def fit_2dcurve(xset, yset, method, **kwargs):
     return w
 
 
-#def classify_2d2label(xset, yset, method, basis = 'linear', **kwargs):
-#    if method.__name__ == 'perceptron':
-#        features = [tuple([1, xset[i][0], xset[i][1]]) for i in range(len(xset))]
-#        w = [1 for i in range(3)]
-#        w, steps = method(features, yset, w)
-#        print('iterator steps: {}'.format(steps))
-#    draw_picture(xset, yset, w, method.__name__, 'classification')
-#    return w
-
-
 def draw_picture(xset, yset, w, method, filename, **kwargs):
     if method == 'bayesian':
         SD = kwargs.get('SD')
@@ -101,6 +93,7 @@ def draw_picture(xset, yset, w, method, filename, **kwargs):
         draw_gauss(sin2pix, xset, yset, w, SD, beta, 'result/'+filename)
     else:
         draw_curve(sin2pix, xset, yset, w, 'result/'+filename)
+
 
 def use_least_square(training_data, test_data, M=9, lmd=0.0):
     print(least_square_string.format(M=M, lmd=lmd))
@@ -125,6 +118,7 @@ def use_gradient_descent(training_data, test_data, M=9,
 
     print_RMS_result(training_data, test_data, w, scaling)
 
+
 def use_bayesian(training_data, test_data, M=9,
                  alpha=None, beta=None, steps=None):
     print(bayesian_string.format(
@@ -137,10 +131,6 @@ def use_bayesian(training_data, test_data, M=9,
     )
 
     print_RMS_result(training_data, test_data, w)
-
-
-#def use_perceptron(training_data):
-#    w = classify_2d2label(training_data[0], training_data[1], perceptron)
 
 
 if __name__ == '__main__':
@@ -175,21 +165,3 @@ if __name__ == '__main__':
     use_bayesian(training50, test50, M=9, alpha=.01, beta=100, steps=10)
     use_bayesian(training50, test50, M=9, alpha=.01, beta=100, steps=15)
     print('see pic in result dir')
-    # print('#####use bayesian regression.#####')
-    # print('use 10 dots for training')
-    # use_bayesian(training10, test50, M=9)
-    # print('use 50 dots for training')
-    # use_bayesian(training50, test50, M=9, alpha=.1, beta=25, steps=1)
-    # use_bayesian(training50, test50, M=9, alpha=.1, beta=25, steps=2)
-    # use_bayesian(training50, test50, M=9, alpha=.1, beta=25, steps=3)
-    # use_bayesian(training50, test50, M=9, alpha=.1, beta=25, steps=4)
-    # print('#####some classification examples.#####')
-    # training10 = generate_2d2label_dots(10)
-    # training50 = generate_2d2label_dots(50)
-    # print('#####use perceptron.#####')
-    # print('use 10 dots for training')
-    # use_perceptron(training10)
-    # print('use 50 dots for training')
-    # use_perceptron(training50)
-    print('see pic in result dir')
-
