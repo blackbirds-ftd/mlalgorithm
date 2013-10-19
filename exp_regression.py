@@ -66,13 +66,15 @@ def fit_2dcurve(xset, yset, method, **kwargs):
     """
     M = kwargs.pop('M', None)
     w = kwargs.pop('w', None)
-    features = convert2polynomial((0, M), xset)
 
     if method.__name__ == 'least_square':
+        features = convert2polynomial((1, M), xset)
         w = method(features, yset, **kwargs)
     elif method.__name__ == 'gradient_descent':
+        features = convert2polynomial((0, M), xset)
         w = method(features, yset, w, **kwargs)
     elif method.__name__ == 'bayesian':
+        features = convert2polynomial((0, M), xset)
         w, SD, alpha, beta = method(features, yset, w, **kwargs)
         print('post alpha={}, post beta={}'.format(alpha,beta))
 
