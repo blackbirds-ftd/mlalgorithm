@@ -175,8 +175,6 @@ if __name__ == '__main__':
     use_bayesian(training50, test50, M=9, alpha=.01, beta=100, steps=10)
     use_bayesian(training50, test50, M=9, alpha=.01, beta=100, steps=15)
     print('see pic in result dir')
-    use_gradient_descent(training50, test50, M=9, sigma=.01, steps=10000, scaling=False, debug=True)
-    use_gradient_descent(training50, test50, M=9, sigma=.03, steps=10000, debug=True)
     # print('#####use bayesian regression.#####')
     # print('use 10 dots for training')
     # use_bayesian(training10, test50, M=9)
