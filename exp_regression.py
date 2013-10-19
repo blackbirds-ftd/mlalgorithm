@@ -1,11 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from utils.data import generate_2dcurve_dots, generate_2d2label_dots, sin2pix, linear
-from utils.plot import draw_curve, draw_gauss, draw_class
+from utils.data import generate_2dcurve_dots, sin2pix
+from utils.plot import draw_curve, draw_gauss
 from utils.measurement import root_mean_square
 from utils.tools import feature_scaling
 from linear.regression import least_square, gradient_descent, bayesian
-from linear.classification import perceptron
 import os
 
 if not os.path.exists('result/'):
@@ -87,14 +86,14 @@ def fit_2dcurve(xset, yset, method, **kwargs):
     return w
 
 
-def classify_2d2label(xset, yset, method, basis = 'linear', **kwargs):
-    if method.__name__ == 'perceptron':
-        features = [tuple([1, xset[i][0], xset[i][1]]) for i in range(len(xset))]
-        w = [1 for i in range(3)]
-        w, steps = method(features, yset, w)
-        print('iterator steps: {}'.format(steps))
-    draw_picture(xset, yset, w, method.__name__, 'classification')
-    return w
+#def classify_2d2label(xset, yset, method, basis = 'linear', **kwargs):
+#    if method.__name__ == 'perceptron':
+#        features = [tuple([1, xset[i][0], xset[i][1]]) for i in range(len(xset))]
+#        w = [1 for i in range(3)]
+#        w, steps = method(features, yset, w)
+#        print('iterator steps: {}'.format(steps))
+#    draw_picture(xset, yset, w, method.__name__, 'classification')
+#    return w
 
 
 def draw_picture(xset, yset, w, method, filename, **kwargs):
@@ -104,15 +103,6 @@ def draw_picture(xset, yset, w, method, filename, **kwargs):
         draw_gauss(sin2pix, xset, yset, w, SD, beta, 'result/'+filename)
     else:
         draw_curve(sin2pix, xset, yset, w, 'result/'+filename)
-
-    # if pattern == 'classification':
-    #     if method == 'perceptron':
-    #         file_name = '_'.join(['result/perceptron',
-    #                               'pattern_{}'.format(pattern),
-    #                               'size{}'.format(len(xset))
-    #                           ])
-    #         draw_class(linear, xset, yset, w, file_name)
-
 
 def use_least_square(training_data, test_data, M=9, lmd=0.0):
     print(least_square_string.format(M=M, lmd=lmd))
@@ -140,7 +130,7 @@ def use_gradient_descent(training_data, test_data, M=9,
 def use_bayesian(training_data, test_data, M=9,
                  alpha=None, beta=None, steps=None):
     print(bayesian_string.format(
-        M=M, alpha=alpha or 0.1, beta=beta or 10, steps=steps or 100
+        M=M, alpha=alpha or 0.1, beta=beta or 10, steps=steps or 1
     ))
 
     w = fit_2dcurve(
@@ -151,12 +141,14 @@ def use_bayesian(training_data, test_data, M=9,
     print_RMS_result(training_data, test_data, w)
 
 
-def use_perceptron(training_data):
-    w = classify_2d2label(training_data[0], training_data[1], perceptron)
+#def use_perceptron(training_data):
+#    w = classify_2d2label(training_data[0], training_data[1], perceptron)
 
 
 if __name__ == '__main__':
     print('#####some curve fitting examples.#####')
+    training1 = generate_2dcurve_dots(1)
+    training2 = generate_2dcurve_dots(2)
     training10 = generate_2dcurve_dots(10)
     training50 = generate_2dcurve_dots(50)
     test50 = generate_2dcurve_dots(50)
@@ -171,16 +163,19 @@ if __name__ == '__main__':
     print('#####use gradient descent.#####')
     print('use 50 dots for training')
     use_gradient_descent(training50, test50, M=3, debug=True)
-    use_gradient_descent(training50, test50, M=9, sigma=.01, steps=10000, scaling=False, debug=True)
-    use_gradient_descent(training50, test50, M=9, sigma=.03, steps=10000, debug=True)
-    # print('#####use bayesian regression.#####')
-    # print('use 10 dots for training')
-    # use_bayesian(training10, test50, M=9)
-    # print('use 50 dots for training')
-    # use_bayesian(training50, test50, M=9, alpha=.1, beta=25, steps=1)
-    # use_bayesian(training50, test50, M=9, alpha=.1, beta=25, steps=2)
-    # use_bayesian(training50, test50, M=9, alpha=.1, beta=25, steps=3)
-    # use_bayesian(training50, test50, M=9, alpha=.1, beta=25, steps=4)
+    use_gradient_descent(training50, test50, M=9, sigma=.003, steps=10000, scaling=False, debug=True)
+    use_gradient_descent(training50, test50, M=9, sigma=.003, steps=10000, debug=True)
+    print('#####use bayesian regression.#####')
+    print('use 1 dots for training')
+    use_bayesian(training1, test50, M=9)
+    print('use 2 dots for training')
+    use_bayesian(training2, test50, M=9)
+    print('use 10 dots for training')
+    use_bayesian(training10, test50, M=9)
+    print('use 50 dots for training')
+    use_bayesian(training50, test50, M=9, alpha=.01, beta=100, steps=5)
+    use_bayesian(training50, test50, M=9, alpha=.01, beta=100, steps=10)
+    use_bayesian(training50, test50, M=9, alpha=.01, beta=100, steps=15)
     # print('#####some classification examples.#####')
     # training10 = generate_2d2label_dots(10)
     # training50 = generate_2d2label_dots(50)
@@ -189,5 +184,5 @@ if __name__ == '__main__':
     # use_perceptron(training10)
     # print('use 50 dots for training')
     # use_perceptron(training50)
-    # print('see pic in result dir')
+    print('see pic in result dir')
 
