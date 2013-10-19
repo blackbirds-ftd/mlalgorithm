@@ -54,7 +54,7 @@ def gradient_descent(features, values, w,
         # (A*w - b) * A is the derivative term
         if debug and i in debug_x:
             debug_y.append(root_mean_square(A, values, w))
-        w = w - sigma * dot((dot(A, w) - b), A)
+        w = w - sigma * dot((dot(A, w) - b), A) / size
     if debug:
         draw_gd_debug(
                     debug_x, debug_y,
