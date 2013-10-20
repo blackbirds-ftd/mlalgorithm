@@ -8,7 +8,7 @@ def perceptron(features, labels, w):
 	"""
 	A, t, size, w = convert2matrix(features, labels, w)
 	steps = 0
-	# judge this sample is not linear seperable after repeat 5 times.  
+	# judge this sample is not linear seperable after repeat 5 times.
 	for rep in range(200):
 		for i in range(size):
 			if dot(w.T, A[i])*t[i] >= 0:
@@ -24,4 +24,4 @@ def perceptron(features, labels, w):
 				print('Cannot Reach Linear Seperable after training data set for 200 times!')
 	return w, steps
 
-	
+

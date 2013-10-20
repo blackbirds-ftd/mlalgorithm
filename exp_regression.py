@@ -160,18 +160,16 @@ def use_bayesian(training_features, training_values,
 if __name__ == '__main__':
     print('#####some curve fitting examples.#####')
     #generate original dataset
-    train1X, train1Y = generate_2dcurve_dots(1)
     train2X, train2Y = generate_2dcurve_dots(2)
     train10X, train10Y = generate_2dcurve_dots(10)
     train50X, train50Y = generate_2dcurve_dots(50)
     test50X, test50Y = generate_2dcurve_dots(50)
     #feature pre-treatment: convert to polynomial features
-    train1X = convert2polynomial((1, 9), train1X)
     train2X = convert2polynomial((1, 9), train2X)
     train10X = convert2polynomial((1, 9), train10X)
     train50X = convert2polynomial((1, 9), train50X)
     test50X = convert2polynomial((1, 9), test50X)
-    print('#####use lease square.#####')
+    """print('#####use lease square.#####')
     print('use 10 dots for training')
     use_least_square(train10X, train10Y, test50X, test50Y)
     use_least_square(train10X, train10Y, test50X, test50Y, lmd=.001)
@@ -182,10 +180,8 @@ if __name__ == '__main__':
     use_gradient_descent(train50X, train50Y, test50X, test50Y,
                          sigma=0.5, steps=10000, scaling=False, debug=True)
     use_gradient_descent(train50X, train50Y, test50X, test50Y,
-                         sigma=2, steps=10000, debug=True)
+                         sigma=2, steps=10000, debug=True)"""
     print('#####use bayesian regression.#####')
-    print('use 1 dots for training')
-    use_bayesian(train1X, train1Y, test50X, test50Y)
     print('use 2 dots for training')
     use_bayesian(train2X, train2Y, test50X, test50Y)
     print('use 10 dots for training')
