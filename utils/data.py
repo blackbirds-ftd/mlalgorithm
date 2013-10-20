@@ -53,5 +53,5 @@ def generate_2d2label_dots(N=20, f=linear, r=(0, 5)):
 	y = [(random.uniform(*r)) for i in range(N)]
 	xset = [[x[i], y[i]] for i in range(N)]
 	yset = [list(map(f, x))[i] - y[i] for i in range(N)]
-	return xset, yset 
+	return xset, yset
 

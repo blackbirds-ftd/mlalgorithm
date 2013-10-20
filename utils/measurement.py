@@ -3,6 +3,7 @@ from numpy import *
 from utils.tools import convert2matrix
 
 def root_mean_square(features, values, w):
-    A, b, size, w = convert2matrix(features, values, w)
-    v = dot(A, w) - b
+
+    size = len(features[0]) + 1
+    v = dot(features, w) - values
     return sqrt(dot(v, v) / size)

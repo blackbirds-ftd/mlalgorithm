@@ -2,14 +2,21 @@ import functools
 import operator
 from numpy import *
 
-def convert2matrix(features, values, w=None):
+def convert2matrix(features, values, w=None, addbias=False):
         length = min(len(features), len(values))
         A = array(features[:length])
         b = array(values[:length])
+        if addbias:
+            A = addones(A)
         if w == None:
-            return A, b, length
+            return A, b
         w = array(w)
-        return A, b, length, w
+        return A, b, w
+
+
+def addones(X):
+    return c_[ones((len(X), 1)), X]
+
 
 def feature_scaling(A, skip_first_col=True):
         """Feature scaling"""

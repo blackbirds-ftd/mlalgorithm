@@ -3,7 +3,7 @@
 from utils.data import generate_2dcurve_dots, sin2pix
 from utils.plot import draw_curve, draw_gauss
 from utils.measurement import root_mean_square
-from utils.tools import feature_scaling
+from utils.tools import feature_scaling, convert2matrix
 from linear.regression import least_square, gradient_descent, bayesian
 import os
 
@@ -13,9 +13,9 @@ if not os.path.exists('debug/'):
     os.mkdir('debug')
 
 
-least_square_string = 'M:{M}, lmd:{lmd:.10}'
-gradient_descent_string = 'M:{M}, sigma:{sigma}, steps:{steps}, scaling:{scaling}'
-bayesian_string = 'M:{M}, init alpha:{alpha}, init beta:{beta}, steps:{steps}'
+least_square_string = 'M:9, lmd:{lmd:.10}'
+gradient_descent_string = 'M:9, sigma:{sigma}, steps:{steps}, scaling:{scaling}'
+bayesian_string = 'M:9, init alpha:{alpha}, init beta:{beta}, steps:{steps}'
 
 def generate_polynomial_features(r, feature):
     """Return a tuple of features using polynomial model
@@ -34,9 +34,9 @@ def convert2polynomial(r, feature_set):
 
 def generate_filename(method, **kwargs):
     """Return result picture name with the given param"""
-    least_square = '{method}_size:{size}_M:{M}_regularize:{lmd}'
-    gradient_descent = '{method}_size:{size}_M:{M}_scaling:{scaling}'
-    bayesian = '{method}_size:{size}_M:{M}'
+    least_square = '{method}_size:{size}_M:9_regularize:{lmd}'
+    gradient_descent = '{method}_size:{size}_M:9_scaling:{scaling}'
+    bayesian = '{method}_size:{size}_M:9'
 
     output = ''
     if method == 'least_square':
@@ -48,41 +48,36 @@ def generate_filename(method, **kwargs):
     return output.format(method=method, **kwargs).replace('.', '-')
 
 
-def print_RMS_result(training, test, w, scaling=False):
-    training_features = convert2polynomial((0, len(w)-1), training[0])
-    test_features = convert2polynomial((0, len(w)-1), test[0])
+def print_RMS_result(training_features, training_values,
+                     test_features, test_values,
+                     w, scaling=False):
     if scaling:
         training_features = feature_scaling(training_features)
         test_features = feature_scaling(test_features)
     print('RMS for training set: {}\nfor test set: {}'.format(
-        root_mean_square(training_features, training[1], w),
-        root_mean_square(test_features, test[1], w),
+        root_mean_square(training_features, training_values, w),
+        root_mean_square(test_features, test_values, w),
     ))
 
 
-def fit_2dcurve(xset, yset, method, **kwargs):
+def regression(features, values, w, method, **kwargs):
     """
     """
-    M = kwargs.pop('M', None)
-    w = kwargs.pop('w', None)
-
     if method.__name__ == 'least_square':
-        features = convert2polynomial((1, M), xset)
-        w = method(features, yset, **kwargs)
+        w = method(features, values, w, **kwargs)
     elif method.__name__ == 'gradient_descent':
-        features = convert2polynomial((0, M), xset)
-        w = method(features, yset, w, **kwargs)
+        w = method(features, values, w, **kwargs)
     elif method.__name__ == 'bayesian':
-        features = convert2polynomial((0, M), xset)
-        w, SD, alpha, beta = method(features, yset, w, **kwargs)
+        w, SD, alpha, beta = method(features, values, w, **kwargs)
         print('post alpha={}, post beta={}'.format(alpha,beta))
 
-    kwargs.update({'M': M, 'size': len(xset)})
+    kwargs.update({'size': len(features)})
     filename = generate_filename(method.__name__, **kwargs)
     if method.__name__ == 'bayesian':
-        draw_picture(xset, yset, w, method.__name__, filename, SD=SD, beta=beta)
+        draw_picture(features, values, w, method.__name__, filename,
+                     SD=SD, beta=beta)
     else:
-        draw_picture(xset, yset, w, method.__name__, filename)
+        draw_picture(features, values, w, method.__name__, filename)
     return w
 
 
@@ -95,72 +90,111 @@ def draw_picture(xset, yset, w, method, filename, **kwargs):
         draw_curve(sin2pix, xset, yset, w, 'result/'+filename)
 
 
-def use_least_square(training_data, test_data, M=9, lmd=0.0):
-    print(least_square_string.format(M=M, lmd=lmd))
+def use_least_square(training_features, training_values,
+                     test_features, test_values,
+                     lmd=0.0):
+    print(least_square_string.format(lmd=lmd))
+    # m represent feature numbers
+    m = len(training_features[0]) + 1
+    training_features, training_values, w = convert2matrix(
+                                            training_features, training_values,
+                                            [0 for i in range(m)],
+                                            addbias=True)
+    test_features, test_values = convert2matrix(
+                                 test_features, test_values, addbias=True)
+    w = regression(
+            training_features, training_values, w, least_square,
+            lmd=lmd)
 
-    w = fit_2dcurve(training_data[0], training_data[1],
-                    least_square, M=M, lmd=lmd)
-
-    print_RMS_result(training_data, test_data, w)
+    print_RMS_result(training_features, training_values,
+                     test_features, test_values, w)
 
 
-def use_gradient_descent(training_data, test_data, M=9,
+def use_gradient_descent(training_features, training_values,
+                         test_features, test_values,
                          sigma=None, steps=None, scaling=True, debug=False):
     print(gradient_descent_string.format(
-        M=M, scaling=scaling, sigma=sigma or 1e-2, steps=steps or 10000
+        scaling=scaling, sigma=sigma or 1e-2, steps=steps or 10000
     ))
-
-    w = fit_2dcurve(
-        training_data[0], training_data[1] ,gradient_descent,
-        M=M, w=[0 for i in range(M + 1)], sigma=sigma,
+    # m represent feature numbers
+    m = len(training_features[0]) + 1
+    training_features, training_values, w = convert2matrix(
+                                            training_features, training_values,
+                                            [0 for i in range(m)],
+                                            addbias=True)
+    test_features, test_values = convert2matrix(
+                                 test_features, test_values, addbias=True)
+    w = regression(
+        training_features, training_values, w, gradient_descent,
+        sigma=sigma,
         steps=steps, scaling=scaling, debug=debug
     )
 
-    print_RMS_result(training_data, test_data, w, scaling)
+    print_RMS_result(training_features, training_values,
+                     test_features, test_values, w)
 
 
-def use_bayesian(training_data, test_data, M=9,
+def use_bayesian(training_features, training_values,
+                 test_features, test_values,
                  alpha=None, beta=None, steps=None):
     print(bayesian_string.format(
-        M=M, alpha=alpha or 0.1, beta=beta or 10, steps=steps or 1
+        alpha=alpha or 0.1, beta=beta or 10, steps=steps or 1
     ))
-
-    w = fit_2dcurve(
-        training_data[0], training_data[1], bayesian,
-        M=M, w=[0 for i in range(M + 1)], alpha=alpha, beta=beta, steps=steps
+    # m represent feature numbers
+    m = len(training_features[0]) + 1
+    training_features, training_values, w = convert2matrix(
+                                            training_features, training_values,
+                                            [0 for i in range(m)],
+                                            addbias=True)
+    test_features, test_values = convert2matrix(
+                                 test_features, test_values, addbias=True)
+    w = regression(
+        training_features, training_values, w, bayesian,
+        alpha=alpha, beta=beta, steps=steps
     )
 
-    print_RMS_result(training_data, test_data, w)
+    print_RMS_result(training_features, training_values,
+                     test_features, test_values, w)
 
 
 if __name__ == '__main__':
     print('#####some curve fitting examples.#####')
-    training1 = generate_2dcurve_dots(1)
-    training2 = generate_2dcurve_dots(2)
-    training10 = generate_2dcurve_dots(10)
-    training50 = generate_2dcurve_dots(50)
-    test50 = generate_2dcurve_dots(50)
+    #generate original dataset
+    train1X, train1Y = generate_2dcurve_dots(1)
+    train2X, train2Y = generate_2dcurve_dots(2)
+    train10X, train10Y = generate_2dcurve_dots(10)
+    train50X, train50Y = generate_2dcurve_dots(50)
+    test50X, test50Y = generate_2dcurve_dots(50)
+    #feature pre-treatment: convert to polynomial features
+    train1X = convert2polynomial((1, 9), train1X)
+    train2X = convert2polynomial((1, 9), train2X)
+    train10X = convert2polynomial((1, 9), train10X)
+    train50X = convert2polynomial((1, 9), train50X)
+    test50X = convert2polynomial((1, 9), test50X)
     print('#####use lease square.#####')
     print('use 10 dots for training')
-    use_least_square(training10, test50, M=1)
-    use_least_square(training10, test50, M=3)
-    use_least_square(training10, test50, M=9)
-    use_least_square(training10, test50, M=9, lmd=.001)
+    use_least_square(train10X, train10Y, test50X, test50Y)
+    use_least_square(train10X, train10Y, test50X, test50Y, lmd=.001)
     print('use 50 dots for training')
-    use_least_square(training50, test50, M=9)
+    use_least_square(train50X, train50Y, test50X, test50Y)
     print('#####use gradient descent.#####')
     print('use 50 dots for training')
-    use_gradient_descent(training50, test50, M=9, sigma=0.5, steps=10000, scaling=False, debug=True)
-    use_gradient_descent(training50, test50, M=9, sigma=2, steps=10000, debug=True)
+    use_gradient_descent(train50X, train50Y, test50X, test50Y,
+                         sigma=0.5, steps=10000, scaling=False, debug=True)
+    use_gradient_descent(train50X, train50Y, test50X, test50Y,
+                         sigma=2, steps=10000, debug=True)
     print('#####use bayesian regression.#####')
     print('use 1 dots for training')
-    use_bayesian(training1, test50, M=9)
+    use_bayesian(train1X, train1Y, test50X, test50Y)
     print('use 2 dots for training')
-    use_bayesian(training2, test50, M=9)
+    use_bayesian(train2X, train2Y, test50X, test50Y)
     print('use 10 dots for training')
-    use_bayesian(training10, test50, M=9)
+    use_bayesian(train10X, train10Y, test50X, test50Y)
     print('use 50 dots for training')
-    use_bayesian(training50, test50, M=9, alpha=.01, beta=100, steps=5)
-    use_bayesian(training50, test50, M=9, alpha=.01, beta=100, steps=10)
-    use_bayesian(training50, test50, M=9, alpha=.01, beta=100, steps=15)
+    use_bayesian(train50X, train50Y, test50X, test50Y,
+                 alpha=.01, beta=100, steps=5)
+    use_bayesian(train50X, train50Y, test50X, test50Y,
+                 alpha=.01, beta=100, steps=10)
+    use_bayesian(train50X, train50Y, test50X, test50Y,
+                 alpha=.01, beta=100, steps=15)
     print('see pic in result dir')

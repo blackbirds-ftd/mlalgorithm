@@ -6,8 +6,8 @@ from utils.measurement import root_mean_square
 from utils.tools import convert2matrix, mdotl, feature_scaling
 from utils.plot import draw_gd_debug
 
-def least_square(features, values, lmd=None, regularizer=2):
-    """An least square method impletement
+def least_square(features, values, w, lmd=None, regularizer=2):
+    """featuresn least square method impletement
 
     Use sum of square error function which aroses in the maximum likehood
     to get liner regression param set w for supervised learning.
@@ -25,15 +25,11 @@ def least_square(features, values, lmd=None, regularizer=2):
     """
     if lmd == None:
         lmd = 0
-    A, b, size = convert2matrix(features, values)
+    size = len(values)
 
-    R = lmd * eye(len(A[0, :]))
-    # solve the equation A'*A*w=A'b
-    w = linalg.solve(R+dot(A.T, A), dot(A.T, b))
-    w0 = (b - dot(A, w)).sum() / size
-
-    w = w.tolist()
-    w[0:0] = [w0]
+    R = lmd * eye(len(features[0, :]))
+    # solve the equation features'*features*w=features'b
+    w = linalg.solve(R+dot(features.T, features), dot(features.T, values))
     return w
 
 
@@ -46,15 +42,15 @@ def gradient_descent(features, values, w,
     debug_y = []
     debug_x = list(range(0, steps, math.floor((steps/100))))
 
-    A, b, size, w = convert2matrix(features, values, w)
+    size = len(values)
 
     if scaling:
-        A = feature_scaling(A)
+        features = feature_scaling(features)
     for i in range(steps):
-        # (A*w - b) * A is the derivative term
+        # (features*w - b) * features is the derivative term
         if debug and i in debug_x:
-            debug_y.append(root_mean_square(A, values, w))
-        w = w - sigma * dot((dot(A, w) - b), A) / size
+            debug_y.append(root_mean_square(features, values, w))
+        w = w - sigma * dot((dot(features, w) - values), features) / size
     if debug:
         draw_gd_debug(
                     debug_x, debug_y,
@@ -74,23 +70,18 @@ def bayesian(features, values, w, alpha=None, beta=None, steps=None):
         beta = 10
     #iterate time control to fix alpha beta
     if steps == None:
-        steps = 1
-
-    postalpha = alpha
-    postbeta = beta
-    A, b, size, Mean = convert2matrix(features, values, w)
-    R = alpha * eye(len(A[0, :]))
-    SD = eye(len(A[0, :])) / alpha
+        steps = 100
+    size = len(values)
+    R = alpha * eye(len(features[0, :]))
+    SD = eye(len(features[0, :])) / alpha
 
     #calculate eig values for lmd in order to fix alpha, beta
-    eig, v = linalg.eig(dot(A.T, A))
+    eig, v = linalg.eig(dot(features.T, features))
     for step in range(steps):
-        alpha = postalpha
-        beta = postbeta
-        SD = linalg.inv(R + beta * dot(A.T, A))
-        Mean = beta * mdotl(SD, A.T, b)
+        SD = linalg.inv(R + beta * dot(features.T, features))
+        w = beta * mdotl(SD, features.T, values)
         gamma = ((beta * eig) / (alpha + beta * eig)).sum()
-        postalpha = gamma / dot(Mean, Mean.T)
-        postbeta = (size - gamma) / ((b - dot(A, Mean)) ** 2).sum()
+        alpha = gamma / dot(w, w.T)
+        beta = (size - gamma) / ((values - dot(features, w)) ** 2).sum()
 
-    return Mean, SD, alpha, beta
+    return w, SD, alpha, beta
