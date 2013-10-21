@@ -169,7 +169,7 @@ if __name__ == '__main__':
     train10X = convert2polynomial((1, 9), train10X)
     train50X = convert2polynomial((1, 9), train50X)
     test50X = convert2polynomial((1, 9), test50X)
-    """print('#####use lease square.#####')
+    print('#####use lease square.#####')
     print('use 10 dots for training')
     use_least_square(train10X, train10Y, test50X, test50Y)
     use_least_square(train10X, train10Y, test50X, test50Y, lmd=.001)
@@ -180,7 +180,7 @@ if __name__ == '__main__':
     use_gradient_descent(train50X, train50Y, test50X, test50Y,
                          sigma=0.5, steps=10000, scaling=False, debug=True)
     use_gradient_descent(train50X, train50Y, test50X, test50Y,
-                         sigma=2, steps=10000, debug=True)"""
+                         sigma=2, steps=10000, debug=True)
     print('#####use bayesian regression.#####')
     print('use 2 dots for training')
     use_bayesian(train2X, train2Y, test50X, test50Y)
