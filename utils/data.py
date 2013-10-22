@@ -1,7 +1,7 @@
 import random
 import functools
-
-from  math import sin, pi
+from numpy import exp
+from math import sin, pi
 
 
 # def build_polynomial_function(coefficient):
@@ -22,6 +22,9 @@ def step_func(a):
 		return 1
 	else:
 		return -1
+
+def sigfunc(a):
+    return 1/(1 + exp(-a))
 
 def noise(f):
         """Add Gaussian noise to observed values of data set"""

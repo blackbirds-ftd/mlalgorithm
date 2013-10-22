@@ -1,7 +1,5 @@
 import math
-
 from numpy import *
-
 from utils.measurement import root_mean_square
 from utils.tools import convert2matrix, mdotl, feature_scaling
 from utils.plot import draw_gd_debug
